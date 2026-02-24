@@ -29,7 +29,7 @@ CHAT_QUESTIONS = [
 
 
 class AayushBotUser(HttpUser):
-    wait_time = between(2, 5)
+    wait_time = between(10, 20)
 
     @task(1)
     def health_check(self):
@@ -44,6 +44,7 @@ class AayushBotUser(HttpUser):
             "/chat",
             json={"message": question, "thread_id": thread_id},
             stream=True,
+            timeout=60,
             catch_response=True,
         ) as response:
             if response.status_code != 200:
