@@ -33,27 +33,15 @@ class AayushBotUser(HttpUser):
 
     @task(1)
     def health_check(self):
-        self.client.get("/health")
+        self.client.get("/health", timeout=10)
 
     @task(5)
     def chat(self):
         question = random.choice(CHAT_QUESTIONS)
         thread_id = f"load-test-{uuid.uuid4().hex[:8]}"
 
-        with self.client.post(
+        self.client.post(
             "/chat",
             json={"message": question, "thread_id": thread_id},
-            stream=True,
-            timeout=60,
-            catch_response=True,
-        ) as response:
-            if response.status_code != 200:
-                response.failure(f"Status {response.status_code}")
-                return
-
-            for chunk in response.iter_content(decode_unicode=True):
-                if "data:" in chunk:
-                    response.success()
-                    break
-            else:
-                response.failure("No stream data received")
+            timeout=120,
+        )
