@@ -28,7 +28,6 @@ CHAT_QUESTIONS = [
 ]
 
 
-
 class AayushBotUser(HttpUser):
     wait_time = between(2, 5)
 
@@ -51,11 +50,9 @@ class AayushBotUser(HttpUser):
                 response.failure(f"Status {response.status_code}")
                 return
 
-            body = ""
             for chunk in response.iter_content(decode_unicode=True):
-                body += chunk
-
-            if "[DONE]" in body:
-                response.success()
+                if "data:" in chunk:
+                    response.success()
+                    break
             else:
-                response.failure("Stream did not complete")
+                response.failure("No stream data received")
